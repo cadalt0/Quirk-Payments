@@ -1,214 +1,145 @@
-# 🚀 Quirk-Payments: Cross-Chain Payment Infrastructure
+# 🔄 Quirk - Cross-Chain USDC Payment Platform
 
-A revolutionary cross-chain payment system that enables seamless USDC transfers across multiple blockchain networks through smart wallet automation and offchain coordination.
+> **Automated cross-chain USDC transfers powered by Circle's CCTP v2 protocol**
 
-## 🌟 **Project Overview**
+## 🎯 **Vision**
 
-Quirk-Payments is a comprehensive cross-chain payment infrastructure that combines:
-- **Multi-chain smart wallet factories** for automated USDC handling
-- **Next.js web application** with Google OAuth integration
-- **Hardhat-based smart contracts** with comprehensive testing
-- **Cross-chain coordination system** for seamless fund routing
+**Quirk** automatically transfers USDC to users' preferred blockchain network when they receive payments. Users create smart wallets on multiple chains and choose their settlement chain - when someone pays them, the USDC automatically goes to their preferred network through CCTP v2's secure cross-chain messaging.
 
-## 🏗️ **Architecture Overview**
+## 🏗️ **Complete System Architecture**
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        QUIRK ECOSYSTEM                         │
-├─────────────────────────────────────────────────────────────────┤
-│  • Smart Contracts (Hardhat + Solidity)                       │
-│  • Web Application (Next.js + React + TypeScript)             │
-│  • Cross-Chain Coordination Server                            │
-│  • Multi-Chain Wallet Management                              │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              USER ONBOARDING FLOW                              │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────┐    ┌─────────────────┐    ┌──────────────────┐    ┌─────────────┐
+│   Google    │───▶│  Authentication │───▶│  Smart Wallet    │───▶│ Destination │
+│   OAuth     │    │  & User Setup   │    │  Creation        │    │  Address    │
+│   Login     │    │                 │    │  (Multi-Chain)   │    │  & Domain   │
+└─────────────┘    └─────────────────┘    └──────────────────┘    └─────────────┘
+                                                      │
+                                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              SMART WALLET CONFIGURATION                        │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────┐    ┌─────────────────┐    ┌──────────────────┐    ┌─────────────┐
+│ Ethereum    │    │     Base        │    │   Arbitrum       │    │  Avalanche  │
+│ (Domain 0)  │    │   (Domain 6)    │    │  (Domain 3)     │    │ (Domain 1)  │
+│             │    │                 │    │                 │    │             │
+│ • USDC Only │    │ • USDC Only     │    │ • USDC Only      │    │ • USDC Only │
+│ • CCTP v2   │    │ • CCTP v2       │    │ • CCTP v2        │    │ • CCTP v2   │
+│ • Auto-Burn │    │ • Auto-Burn     │    │ • Auto-Burn      │    │ • Auto-Burn │
+│ • Dest Addr │    │ • Dest Addr     │    │ • Dest Addr      │    │ • Dest Addr │
+└─────────────┘    └─────────────────┘    └──────────────────┘    └─────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              PAYMENT FLOW (CCTP v2)                           │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────┐    ┌─────────────────┐    ┌──────────────────┐    ┌─────────────┐
+│ Payment     │───▶│  Smart Wallet   │───▶│  CCTP v2 Burn    │───▶│  Burn       │
+│ Request     │    │  Receives USDC  │    │  (Automatic)     │    │  Attestation│
+│ (6-digit)   │    │                 │    │                 │    │  Fetching   │
+└─────────────┘    └─────────────────┘    └──────────────────┘    └─────────────┘
+                                                      │
+                                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              OFFLINE SERVER PROCESSING                         │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────┐    ┌─────────────────┐    ┌──────────────────┐    ┌─────────────┐
+│ CCTP v2     │───▶│  Offchain       │───▶│  Cross-Chain     │───▶│  CCTP v2    │
+│ Attestation │    │  Server         │    │  Coordination    │    │  Mint       │
+│ Processing  │    │  Monitoring     │    │  & Routing       │    │  (Dest)     │
+└─────────────┘    └─────────────────┘    └──────────────────┘    └─────────────┘
+                                                      │
+                                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              USER RECEIVES FUNDS                               │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────┐    ┌─────────────────┐    ┌──────────────────┐    ┌─────────────┐
+│ USDC        │───▶│  User's         │───▶│  Transaction     │───▶│  Success    │
+│ Minted      │    │  Preferred      │    │  Confirmation    │    │  & Funds   │
+│ via CCTP v2 │    │  Address        │    │  (Blockchain)    │    │  Available  │
+└─────────────┘    └─────────────────┘    └──────────────────┘    └─────────────┘
 ```
 
-## 📁 **Repository Structure**
+## 🔧 **Technical Components**
 
-```
-quirk-payments/
-├── contracts/                 # Smart Contract Layer
-│   ├── contracts/            # Solidity smart contracts
-│   │   ├── BaseWalletFactory.sol
-│   │   ├── ArbitrumSepoliaWalletFactory.sol
-│   │   ├── AvalancheFujiWalletFactory.sol
-│   │   ├── BaseSepoliaWalletFactory.sol
-│   │   ├── EthereumSepoliaWalletFactory.sol
-│   │   ├── LineaSepoliaWalletFactory.sol
-│   │   ├── OPSepoliaWalletFactory.sol
-│   │   ├── PolygonPoSAmoyWalletFactory.sol
-│   │   ├── SeiTestnetWalletFactory.sol
-│   │   ├── SonicTestnetWalletFactory.sol
-│   │   ├── UnichainSepoliaWalletFactory.sol
-│   │   └── WorldChainSepoliaWalletFactory.sol
-│   ├── test/                 # Contract tests
-│   ├── scripts/              # Deployment scripts
-│   ├── hardhat.config.ts     # Hardhat configuration
-│   └── package.json          # Contract dependencies
-├── website/                   # Web Application Layer
-│   ├── app/                  # Next.js app directory
-│   ├── components/           # React components
-│   ├── lib/                  # Utility libraries
-│   ├── hooks/                # Custom React hooks
-│   ├── public/               # Static assets
-│   └── package.json          # Web app dependencies
-└── server/                   # Backend Coordination Layer
-    └── (Cross-chain coordination services)
-```
-
-## 🔧 **Smart Contract Layer**
-
-### **Supported Networks**
-- **Ethereum Sepolia** (Domain 0)
-- **Avalanche Fuji** (Domain 1) 
-- **Arbitrum Sepolia** (Domain 3)
-- **Base Sepolia** (Domain 6)
-- **Linea Sepolia**
-- **OP Sepolia**
-- **Polygon PoS Amoy**
-- **Sei Testnet**
-- **Sonic Testnet**
-- **Unichain Sepolia**
-- **WorldChain Sepolia**
-
-### **Key Features**
-- **USDC-Only Acceptance**: Smart wallets only accept USDC tokens
-- **Auto-Burn Logic**: Immediate burn on USDC receipt
+### **1. Smart Contract Layer (CCTP v2 Integration)**
+- **Restrictive Functions**: Only accept USDC tokens
+- **CCTP v2 Auto-Burn Logic**: Immediate burn on USDC receipt using Circle's protocol
 - **Event Emission**: Burn events for offchain monitoring
-- **Domain Mapping**: Chain-specific identifiers
-- **Destination Address**: Pre-configured recipient addresses
+- **Domain Mapping**: Chain-specific identifiers (Ethereum: 0, Avalanche: 1, Arbitrum: 3, Base: 6)
+- **Destination Address**: Pre-configured recipient address
 
-## 🌐 **Web Application Layer**
+### **2. CCTP v2 Cross-Chain Process**
+- **Burn Attestation**: Smart contract burns USDC and generates CCTP v2 burn attestation
+- **Attestation Fetching**: Offchain server fetches burn attestation from CCTP v2
+- **Cross-Chain Minting**: Server uses attestation to mint USDC on destination chain
+- **Secure Messaging**: All cross-chain communication secured by Circle's CCTP v2 infrastructure
 
-### **Frontend Technologies**
-- **Next.js 15** with App Router
-- **React 19** with TypeScript
-- **Tailwind CSS** for styling
-- **Radix UI** components
-- **Google OAuth** integration
-- **3D Model Viewer** (Three.js)
+### **3. Offchain Server Architecture**
+- **CCTP v2 Event Listeners**: Monitor all chain burn events and attestations
+- **Attestation Processing**: Fetch and validate CCTP v2 burn attestations
+- **Cross-Chain Router**: Determine destination chain based on user preferences
+- **Minting Service**: Trigger USDC mint on destination via CCTP v2
+- **User Preference Store**: Maintain destination mappings and chain preferences
 
-### **Key Features**
-- **User Authentication**: Google OAuth integration
-- **Wallet Creation**: Multi-chain smart wallet setup
-- **Payment Requests**: 6-digit code generation
-- **Real-time Updates**: Live transaction monitoring
-- **Responsive Design**: Mobile-first approach
+## 🚀 **Deployed Contracts (Testnet)**
 
-## 🔄 **Cross-Chain Payment Flow**
+### **Smart Wallet Factory Addresses**
 
-1. **User Onboarding**: Google OAuth → Smart Wallet Creation
-2. **Payment Request**: Generate 6-digit payment code
-3. **USDC Receipt**: Smart wallet receives USDC on source chain
-4. **Auto-Burn**: USDC automatically burned with event emission
-5. **Offchain Detection**: Server monitors burn events
-6. **Cross-Chain Routing**: Determine destination chain
-7. **Fund Minting**: Mint USDC on destination chain
-8. **User Receipt**: Funds available on preferred chain
+| Chain | Network | Factory Address | Explorer |
+|-------|---------|-----------------|----------|
+| **Ethereum** | Sepolia | `0xb80c3ed5c3b5a863838080243ee0148b911ff19d` | [View on Sepolia Etherscan](https://sepolia.etherscan.io/address/0xb80c3ed5c3b5a863838080243ee0148b911ff19d) |
+| **Arbitrum** | Sepolia | `0xbb3bfc5a694b08c7854311c6242b2d95de4f66d8` | [View on Sepolia Arbiscan](https://sepolia.arbiscan.io/address/0xbb3bfc5a694b08c7854311c6242b2d95de4f66d8) |
+| **Base** | Sepolia | `0x0ec0d75e8d1baadf7b893a94185cbf279bdd4ad7` | [View on Base Sepolia Explorer](https://sepolia.basescan.org/address/0x0ec0d75e8d1baadf7b893a94185cbf279bdd4ad7) |
+| **Avalanche** | Fuji | `0x0ec0d75e8d1baadf7b893a94185cbf279bdd4ad7` | [View on Fuji Snowtrace](https://testnet.snowtrace.io/address/0x0ec0d75e8d1baadf7b893a94185cbf279bdd4ad7) |
 
-## 🚀 **Getting Started**
+### **CCTP v2 Integration**
+- **Burn Attestation**: Smart contracts automatically burn USDC and generate CCTP v2 attestations
+- **Cross-Chain Minting**: Offchain server processes attestations to mint on destination chains
+- **Secure Infrastructure**: Leverages Circle's battle-tested CCTP v2 protocol for all cross-chain operations
 
-### **Prerequisites**
-- Node.js 18+ 
-- npm or pnpm
-- Git
+## 📱 **User Experience Flow**
 
-### **Installation**
+1. **Login** → Google OAuth authentication
+2. **Create Wallets** → Multi-chain smart wallet setup with CCTP v2 integration
+3. **Set Destination** → Choose preferred settlement chain and address
+4. **Share Payment Code** → Generate 6-digit payment ID
+5. **Receive Payment** → USDC sent to smart wallet address
+6. **CCTP v2 Auto-Burn** → Smart contract burns USDC and generates attestation
+7. **Cross-Chain Mint** → Server processes attestation and mints on destination
+8. **Funds Available** → USDC received on preferred chain
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/cadalt0/Quirk-Payments.git
-   cd Quirk-Payments
-   ```
+## 🎯 **Key Benefits**
 
-2. **Install contract dependencies**
-   ```bash
-   cd contracts
-   npm install
-   ```
+- **🔄 Seamless Cross-Chain**: No manual bridging required, powered by CCTP v2
+- **⚡ Automatic Execution**: Smart contracts handle everything automatically
+- **🎯 User Control**: Choose preferred destination chain and address
+- **💎 USDC Focus**: Stable value across all operations
+- **📱 Simple UX**: Generate payment codes like phone numbers
+- **🔒 Secure**: CCTP v2 infrastructure ensures reliable cross-chain transfers
+- **🏗️ Enterprise-Grade**: Built on Circle's production-ready CCTP v2 protocol
 
-3. **Install web application dependencies**
-   ```bash
-   cd ../website
-   npm install
-   ```
+## 🚀 **Workflow Summary**
 
-4. **Set up environment variables**
-   ```bash
-   # Copy and configure environment files
-   cp .env.example .env
-   ```
+**Setup Phase**: User creates multi-chain smart wallets with CCTP v2 auto-burn configuration
+**Payment Phase**: Recipients pay USDC to smart wallet addresses
+**Processing Phase**: Smart contracts burn USDC via CCTP v2, offchain server processes attestations
+**Completion Phase**: Server mints USDC on user's preferred destination chain through CCTP v2
 
-### **Development**
-
-1. **Start smart contract development**
-   ```bash
-   cd contracts
-   npm run compile
-   npm run test
-   ```
-
-2. **Start web application**
-   ```bash
-   cd website
-   npm run dev
-   ```
-
-3. **Deploy contracts**
-   ```bash
-   cd contracts
-   npx hardhat ignition deploy --network sepolia
-   ```
-
-## 🧪 **Testing**
-
-### **Smart Contracts**
-```bash
-cd contracts
-npm run test
-npm run test:coverage
-```
-
-### **Web Application**
-```bash
-cd website
-npm run lint
-npm run build
-```
-
-## 📚 **Documentation**
-
-- [Smart Contract Architecture](./contracts/README.md)
-- [Web Application Setup](./website/README.md)
-- [Cross-Chain Workflow](./website/QUIRK_WORKFLOW_DIAGRAM.md)
-- [Google Auth Setup](./website/GOOGLE_AUTH_SETUP.md)
-
-## 🤝 **Contributing**
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This creates a **"set it and forget it"** cross-chain payment system where complexity is hidden behind simple user interactions, powered by Circle's secure CCTP v2 infrastructure.
 
 ## 🔗 **Links**
 
-- **Repository**: https://github.com/cadalt0/Quirk-Payments
-- **Smart Contracts**: [Hardhat Documentation](https://hardhat.org/docs)
-- **Web Framework**: [Next.js Documentation](https://nextjs.org/docs)
-- **Blockchain**: [Ethereum Documentation](https://ethereum.org/developers)
 
-## 🆘 **Support**
-
-For support and questions:
-- Open an [issue](../../issues) on GitHub
-- Check the [documentation](./docs) folder
-- Review the [workflow diagram](./website/QUIRK_WORKFLOW_DIAGRAM.md)
+- **CCTP v2**: [Circle's Cross-Chain Transfer Protocol](https://developers.circle.com/developer-docs/cctp)
 
 ---
 
-**Built with ❤️ for the decentralized future**
+*Built with ❤️ using Next.js, React Three Fiber, and Circle's CCTP v2 protocol*
