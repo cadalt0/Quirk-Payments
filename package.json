@@ -1,0 +1,66 @@
+{
+  "name": "quirk-payments",
+  "version": "1.0.0",
+  "description": "Cross-chain payment infrastructure with smart wallet automation and offchain coordination",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:contracts\" \"npm run dev:website\"",
+    "dev:contracts": "cd contracts && npm run compile",
+    "dev:website": "cd website && npm run dev",
+    "build": "npm run build:contracts && npm run build:website",
+    "build:contracts": "cd contracts && npm run compile",
+    "build:website": "cd website && npm run build",
+    "test": "npm run test:contracts && npm run test:website",
+    "test:contracts": "cd contracts && npm run test",
+    "test:website": "cd website && npm run lint",
+    "clean": "npm run clean:contracts && npm run clean:website",
+    "clean:contracts": "cd contracts && npm run clean",
+    "clean:website": "cd website && rm -rf .next out",
+    "install:all": "npm install && cd contracts && npm install && cd ../website && npm install",
+    "deploy:contracts": "cd contracts && npm run deploy",
+    "start:website": "cd website && npm run start",
+    "lint": "npm run lint:contracts && npm run lint:website",
+    "lint:contracts": "cd contracts && npm run lint",
+    "lint:website": "cd website && npm run lint",
+    "format": "npm run format:contracts && npm run format:website",
+    "format:contracts": "cd contracts && npm run format",
+    "format:website": "cd website && npm run format"
+  },
+  "keywords": [
+    "blockchain",
+    "cross-chain",
+    "payments",
+    "smart-contracts",
+    "ethereum",
+    "usdc",
+    "defi",
+    "web3",
+    "nextjs",
+    "react",
+    "typescript",
+    "hardhat",
+    "solidity"
+  ],
+  "author": "Quirk-Payments Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cadalt0/Quirk-Payments.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cadalt0/Quirk-Payments/issues"
+  },
+  "homepage": "https://github.com/cadalt0/Quirk-Payments#readme",
+  "workspaces": [
+    "contracts",
+    "website"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "packageManager": "npm@9.0.0"
+}
