@@ -71,7 +71,7 @@
     "three": "^0.179.1",
     "vaul": "^0.9.9",
     "zod": "3.25.67",
-    "@types/canvas-confetti": "^1.6.4",
+    "@types/canvas-confetti": "^1.6.4"
     
   },
   "devDependencies": {
