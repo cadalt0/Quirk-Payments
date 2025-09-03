@@ -897,6 +897,113 @@ app.post('/api/create-wallet-master', async (req, res) => {
   }
 });
 
+// ===== USDC BURNING API ENDPOINT =====
+
+// Burn USDC from BurnOnlyWallet
+app.post('/api/burn-usdc', async (req, res) => {
+  try {
+    const { walletAddress, chainNo, amount } = req.body;
+    
+    if (!walletAddress || chainNo === undefined || !amount) {
+      return res.status(400).json({ 
+        error: 'walletAddress, chainNo, and amount are required' 
+      });
+    }
+
+    console.log(`🔥 Burning USDC from wallet: ${walletAddress}, Chain: ${chainNo}, Amount: ${amount}`);
+    
+    // Chain configuration mapping using environment variables
+    const chainConfigs = {
+      0: { // ETH
+        rpc: process.env.ETH_RPC_URL,
+        name: "ETH Sepolia",
+        privateKey: process.env.ETH_PRIVATE_KEY
+      },
+      1: { // Avalanche
+        rpc: process.env.AVALANCHE_RPC_URL,
+        name: "Avalanche Fuji",
+        privateKey: process.env.AVALANCHE_PRIVATE_KEY
+      },
+      3: { // Arbitrum
+        rpc: process.env.ARBITRUM_RPC_URL,
+        name: "Arbitrum Sepolia",
+        privateKey: process.env.ARBITRUM_PRIVATE_KEY
+      },
+      6: { // Base
+        rpc: process.env.BASE_RPC_URL,
+        name: "Base Sepolia",
+        privateKey: process.env.BASE_PRIVATE_KEY
+      }
+    };
+    
+    const chainConfig = chainConfigs[chainNo];
+    if (!chainConfig) {
+      return res.status(400).json({ 
+        error: 'Invalid chainNo. Supported chains: 0=ETH, 1=Avalanche, 3=Arbitrum, 6=Base' 
+      });
+    }
+    
+    if (!chainConfig.rpc || !chainConfig.privateKey) {
+      return res.status(500).json({ 
+        error: `Chain configuration missing for ${chainConfig.name}. Check environment variables.` 
+      });
+    }
+    
+    // Connect to network
+    const provider = new ethers.JsonRpcProvider(chainConfig.rpc);
+    const wallet = new ethers.Wallet(chainConfig.privateKey, provider);
+    
+    console.log(`📱 Target Wallet: ${walletAddress}`);
+    console.log(`🌐 Chain: ${chainConfig.name}`);
+    console.log(`💰 Amount to Burn: ${amount} wei`);
+    console.log(`👤 Signer Address: ${wallet.address}`);
+    
+    // BurnOnlyWallet ABI for burnUSDC function
+    const abi = [
+      {
+        name: "burnUSDC",
+        type: "function",
+        stateMutability: "nonpayable",
+        inputs: [{ name: "amount", type: "uint256" }],
+        outputs: [],
+      },
+    ];
+    
+    // Create contract instance
+    const contract = new ethers.Contract(walletAddress, abi, wallet);
+    
+    // Call the burnUSDC function
+    console.log("🔥 Calling burnUSDC...");
+    const tx = await contract.burnUSDC(amount);
+    
+    console.log("⏳ Transaction Hash:", tx.hash);
+    console.log("⏳ Waiting for confirmation...");
+    
+    // Wait for transaction to be mined
+    const receipt = await tx.wait();
+    
+    console.log("✅ USDC Burned Successfully!");
+    console.log("📊 Gas Used:", receipt.gasUsed.toString());
+    
+    // Return success response
+    res.json({
+      message: 'USDC burned successfully',
+      transactionHash: tx.hash,
+      gasUsed: receipt.gasUsed.toString(),
+      chain: chainConfig.name,
+      walletAddress: walletAddress,
+      amountBurned: amount
+    });
+    
+  } catch (error) {
+    console.error('Error in POST /api/burn-usdc:', error);
+    res.status(500).json({ 
+      error: 'Failed to burn USDC',
+      details: error.message 
+    });
+  }
+});
+
 // ===== QUIRK-PAY API ENDPOINTS =====
 
 // Create new payment record
@@ -1086,6 +1193,7 @@ async function startServer() {
     console.log('  DELETE /api/quirk-pay/:payid');
     console.log('  POST   /api/create-wallet/:chain');
     console.log('  POST   /api/create-wallet-master');
+    console.log('  POST   /api/burn-usdc');
   });
 }
 
